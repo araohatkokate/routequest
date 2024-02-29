@@ -132,43 +132,45 @@ class RouteFinder:
 
     def uninformed_search(self, origin, destination):
         frontier = [(0, origin, [origin])]
-        explored = set()
         closed = set()
         nodes_popped = 0
         nodes_expanded = 0
-        nodes_generated = 1
+        nodes_generated = 1  # Initialize nodes_generated to 1
         while frontier:
             cost, current_city, path = heapq.heappop(frontier)
             nodes_popped += 1
             if current_city == destination:
                 return path, nodes_popped, nodes_expanded, nodes_generated
             if current_city in closed:
-                continue
+            # If the node is in 'closed' but selected due to lowest g(n), update its cost
+                for i, (fringe_cost, fringe_city, _) in enumerate(frontier):
+                    if fringe_city == current_city and fringe_cost > cost:
+                    # Update cost in the fringe
+                        frontier[i] = (cost, current_city, path)
+                        print("Updating", current_city, "in fringe with cost", cost)
+                        break
+                continue  # Skip further processing for this node
             closed.add(current_city)
+        # Increment nodes_expanded only when a node's successors are generated
             nodes_expanded += 1
-            print("Nodes popped:", nodes_popped)
+        # Print current iteration information
+            print("Nodes Popped:", nodes_popped)
             print("Nodes Expanded:", nodes_expanded)
             print("Nodes Generated:", nodes_generated)
+            print("Current City:", current_city)
             print("Fringe:")
             for node in frontier:
                 print("\t< state =", node[1], "g(n) =", node[0], ", d =", len(node[2]) - 1, ", Parent =", node[2][-1], ">")
             print("Closed:", closed)
+        # Generate successors
             if current_city in self.connections:
                 for neighbor, distance in self.connections[current_city]:
-                    if neighbor not in closed:
-                        new_cost = cost + distance
-                        heapq.heappush(frontier, (new_cost, neighbor, path + [neighbor]))
-                        nodes_generated += 1
-                        print("Adding", neighbor, "to fringe with cost", new_cost)
-            for city in self.connections:
-                for connection in self.connections[city]:
-                    if connection[0] == current_city and city not in closed:
-                        new_cost = cost + connection[1]
-                        heapq.heappush(frontier, (new_cost, city, path + [city]))
-                        nodes_generated += 1
-                        print("Adding", city, "to fringe with cost", new_cost, "via", current_city)
+                # Generate successor
+                    new_cost = cost + distance
+                    heapq.heappush(frontier, (new_cost, neighbor, path + [neighbor]))
+                    nodes_generated += 1
+                    print("Adding", neighbor, "to fringe with cost", new_cost)
         return None, nodes_popped, nodes_expanded, nodes_generated
-
 
     def informed_search(self, origin, destination):
         frontier = [(self.heuristic.get(origin, float('inf')), origin, [origin])]
