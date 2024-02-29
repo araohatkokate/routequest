@@ -159,7 +159,7 @@ class RouteFinder:
                         new_cost = cost + distance
                         heapq.heappush(frontier, (new_cost, neighbor, path + [neighbor]))
                         nodes_generated += 1
-                        print("Adding", neighbor, "to fringe with cose", new_cost)
+                        print("Adding", neighbor, "to fringe with cost", new_cost)
             for city in self.connections:
                 for connection in self.connections[city]:
                     if connection[0] == current_city and city not in closed:
