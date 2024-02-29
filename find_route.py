@@ -109,7 +109,7 @@ class RouteFinder:
         if self.heuristic:
             return self.informed_search(origin, destination)
         else:
-            return self.uninformed_search(origin, destination)
+            return self.uninformed_search(origin, destination) 
 
     def uninformed_search(self, origin, destination):
         frontier = [(0, origin, [origin])]
