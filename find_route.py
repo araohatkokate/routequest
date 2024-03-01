@@ -48,14 +48,14 @@ class RouteFinder:
         return None, nodes_popped, nodes_expanded, nodes_generated
 
     def informed_search(self, origin, destination):
-        frontier = [(self.heuristic.get(origin, float('inf')), origin, [origin])]
+        frontier = [(self.heuristic.get(origin, float('inf')), 0, origin, [origin])]
         closed = set()
         nodes_popped = 0
         nodes_expanded = 0
-        nodes_generated = 1
+        nodes_generated = 1  # Start with 1 to account for the initial node
 
         while frontier:
-            _, current_city, path = heapq.heappop(frontier)
+            _, g_cost, current_city, path = heapq.heappop(frontier)
             nodes_popped += 1
 
             if current_city == destination:
@@ -65,7 +65,6 @@ class RouteFinder:
                 continue
 
             closed.add(current_city)
-            nodes_expanded += 1
 
         # Print current iteration information
             print("Nodes Popped:", nodes_popped)
@@ -74,29 +73,21 @@ class RouteFinder:
             print("Current City:", current_city)
             print("Fringe:")
             for node in frontier:
-                print("\t< state =", node[1], "h(n) =", node[0], ", Path =", node[2], ">")
+                print("\t< state =", node[2], "f(n) =", node[0], ", g(n) =", node[1], ", Path =", node[3], ">")
             print("Closed:", closed)
 
         # Generate successors
             if current_city in self.connections:
+                nodes_expanded += 1
                 for neighbor, distance in self.connections[current_city]:
                     if neighbor not in closed:
-                        new_cost = self.heuristic.get(neighbor, float('inf')) + distance
-                    # Check if the neighbor is in the frontier with a higher cost
-                        found = False
-                        for i, (cost, city, _) in enumerate(frontier):
-                            if city == neighbor and cost > new_cost:
-                            # Update the cost of the neighbor in the frontier
-                                frontier[i] = (new_cost, neighbor, path + [neighbor])
-                                found = True
-                                break
-                        if not found:
-                        # Add the neighbor to the frontier
-                            heapq.heappush(frontier, (new_cost, neighbor, path + [neighbor]))
-                            nodes_generated += 1
-                            print("Adding", neighbor, "to fringe with cost", new_cost)
+                        new_g_cost = g_cost + distance
+                        new_f_cost = new_g_cost + self.heuristic.get(neighbor, float('inf'))
+                        heapq.heappush(frontier, (new_f_cost, new_g_cost, neighbor, path + [neighbor]))
+                        nodes_generated += 1  # Increment for each newly generated successor
 
         return None, nodes_popped, nodes_expanded, nodes_generated
+
 
 def read_input(filename):
     connections = {}
