@@ -2,73 +2,64 @@ import sys
 import heapq
 
 class RouteFinder:
+    # initializing the class
     def __init__(self, connections, heuristic=None):
         self.connections = connections
         self.heuristic = heuristic
-
+    # search to find the optimal path. If a route is found, it will return the route, nodes popped, expanded and generated.
+    # If a route is not found, it will return None, nodes popped, expanded and generated.
     def search(self, origin, destination):
         if self.heuristic:
             return self.informed_search(origin, destination)
         else:
             return self.uninformed_search(origin, destination) 
-
+    # performs uninformed search and finds the optimal path.
     def uninformed_search(self, origin, destination):
         frontier = [(0, origin, [origin])]
         closed = set()
         nodes_popped = 0
         nodes_expanded = 0
-        nodes_generated = 1  # Initialize nodes_generated to 1
+        nodes_generated = 1 
         while frontier:
             cost, current_city, path = heapq.heappop(frontier)
             nodes_popped += 1
             if current_city == destination:
                 return path, nodes_popped, nodes_expanded, nodes_generated
             if current_city in closed:
-                continue  # Skip further processing for this node
+                continue 
             closed.add(current_city)
         # Generate successors
             if current_city in self.connections:
-            # Increment nodes_expanded only when a node's successors are generated
                 nodes_expanded += 1
                 for neighbor, distance in self.connections[current_city]:
-                # Generate successor
                     new_cost = cost + distance
                     heapq.heappush(frontier, (new_cost, neighbor, path + [neighbor]))
                     nodes_generated += 1
-                    #print("Adding", neighbor, "to fringe with cost", new_cost)
         return None, nodes_popped, nodes_expanded, nodes_generated
-
+    # performs informed search and finds the optimal path.
     def informed_search(self, origin, destination):
         frontier = [(self.heuristic.get(origin, float('inf')), 0, origin, [origin])]
         closed = set()
         nodes_popped = 0
         nodes_expanded = 0
-        nodes_generated = 1  # Initialize nodes_generated to 1
-
+        nodes_generated = 1 
         while frontier:
             _, g_cost, current_city, path = heapq.heappop(frontier)
             nodes_popped += 1
-
             if current_city == destination:
                 return path, nodes_popped, nodes_expanded, nodes_generated
-
             if current_city in closed:
                 continue
-
             closed.add(current_city)
-            nodes_expanded += 1  # Increment nodes_expanded when a node is expanded
-
-        # Generate successors
+            nodes_expanded += 1
             if current_city in self.connections:
                 for neighbor, distance in self.connections[current_city]:
                     new_g_cost = g_cost + distance
                     new_f_cost = new_g_cost + self.heuristic.get(neighbor, float('inf'))
                     heapq.heappush(frontier, (new_f_cost, new_g_cost, neighbor, path + [neighbor]))
-                    nodes_generated += 1  # Increment for each newly generated successor
-
+                    nodes_generated += 1
         return None, nodes_popped, nodes_expanded, nodes_generated
-
-
+# Reads the input file and parses it to return the data extracted.
 def read_input(filename):
     connections = {}
     with open(filename, 'r') as file:
@@ -80,7 +71,7 @@ def read_input(filename):
             connections.setdefault(source, []).append((dest, distance))
             connections.setdefault(dest, []).append((source, distance))
     return connections
-
+# Reads the heuristic value from the heuristic file and parses it to return the data extracted.
 def read_heuristic(heuristic_filename):
     heuristic = {}
     with open(heuristic_filename, 'r') as file:
@@ -88,7 +79,7 @@ def read_heuristic(heuristic_filename):
             city, cost = line.split()
             heuristic[city] = float(cost)
     return heuristic
-
+# finds the optimal path. Prints the route, node statistics and distance.
 def find_route(input_filename, origin_city, destination_city, heuristic_filename=None):
     connections = read_input(input_filename)
     heuristic = None
