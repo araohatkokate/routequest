@@ -52,7 +52,7 @@ class RouteFinder:
         closed = set()
         nodes_popped = 0
         nodes_expanded = 0
-        nodes_generated = 1  # Start with 1 to account for the initial node
+        nodes_generated = 1  # Initialize nodes_generated to 1
 
         while frontier:
             _, g_cost, current_city, path = heapq.heappop(frontier)
@@ -65,26 +65,15 @@ class RouteFinder:
                 continue
 
             closed.add(current_city)
-
-        # Print current iteration information
-            print("Nodes Popped:", nodes_popped)
-            print("Nodes Expanded:", nodes_expanded)
-            print("Nodes Generated:", nodes_generated)
-            print("Current City:", current_city)
-            print("Fringe:")
-            for node in frontier:
-                print("\t< state =", node[2], "f(n) =", node[0], ", g(n) =", node[1], ", Path =", node[3], ">")
-            print("Closed:", closed)
+            nodes_expanded += 1  # Increment nodes_expanded when a node is expanded
 
         # Generate successors
             if current_city in self.connections:
-                nodes_expanded += 1
                 for neighbor, distance in self.connections[current_city]:
-                    if neighbor not in closed:
-                        new_g_cost = g_cost + distance
-                        new_f_cost = new_g_cost + self.heuristic.get(neighbor, float('inf'))
-                        heapq.heappush(frontier, (new_f_cost, new_g_cost, neighbor, path + [neighbor]))
-                        nodes_generated += 1  # Increment for each newly generated successor
+                    new_g_cost = g_cost + distance
+                    new_f_cost = new_g_cost + self.heuristic.get(neighbor, float('inf'))
+                    heapq.heappush(frontier, (new_f_cost, new_g_cost, neighbor, path + [neighbor]))
+                    nodes_generated += 1  # Increment for each newly generated successor
 
         return None, nodes_popped, nodes_expanded, nodes_generated
 
