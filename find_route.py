@@ -26,15 +26,6 @@ class RouteFinder:
             if current_city in closed:
                 continue  # Skip further processing for this node
             closed.add(current_city)
-        # Print current iteration information
-            #print("Nodes Popped:", nodes_popped)
-            #print("Nodes Expanded:", nodes_expanded)
-            #print("Nodes Generated:", nodes_generated)
-            #print("Current City:", current_city)
-            #print("Fringe:")
-            #for node in frontier:
-                #print("\t< state =", node[1], "g(n) =", node[0], ", d =", len(node[2]) - 1, ", Parent =", node[2][-1], ">")
-            #print("Closed:", closed)
         # Generate successors
             if current_city in self.connections:
             # Increment nodes_expanded only when a node's successors are generated
