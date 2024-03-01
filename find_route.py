@@ -53,15 +53,20 @@ class RouteFinder:
         nodes_popped = 0
         nodes_expanded = 0
         nodes_generated = 1
+
         while frontier:
             _, current_city, path = heapq.heappop(frontier)
             nodes_popped += 1
+
             if current_city == destination:
                 return path, nodes_popped, nodes_expanded, nodes_generated
+
             if current_city in closed:
                 continue
+
             closed.add(current_city)
             nodes_expanded += 1
+
         # Print current iteration information
             print("Nodes Popped:", nodes_popped)
             print("Nodes Expanded:", nodes_expanded)
@@ -71,14 +76,26 @@ class RouteFinder:
             for node in frontier:
                 print("\t< state =", node[1], "h(n) =", node[0], ", Path =", node[2], ">")
             print("Closed:", closed)
+
         # Generate successors
             if current_city in self.connections:
                 for neighbor, distance in self.connections[current_city]:
                     if neighbor not in closed:
                         new_cost = self.heuristic.get(neighbor, float('inf')) + distance
-                        heapq.heappush(frontier, (new_cost, neighbor, path + [neighbor]))
-                        nodes_generated += 1
-                        print("Adding", neighbor, "to fringe with cost", new_cost)
+                    # Check if the neighbor is in the frontier with a higher cost
+                        found = False
+                        for i, (cost, city, _) in enumerate(frontier):
+                            if city == neighbor and cost > new_cost:
+                            # Update the cost of the neighbor in the frontier
+                                frontier[i] = (new_cost, neighbor, path + [neighbor])
+                                found = True
+                                break
+                        if not found:
+                        # Add the neighbor to the frontier
+                            heapq.heappush(frontier, (new_cost, neighbor, path + [neighbor]))
+                            nodes_generated += 1
+                            print("Adding", neighbor, "to fringe with cost", new_cost)
+
         return None, nodes_popped, nodes_expanded, nodes_generated
 
 def read_input(filename):
